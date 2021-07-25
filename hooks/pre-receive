@@ -1,0 +1,18 @@
+#!/bin/sh
+
+read old_value new_value ref_name
+
+refs=$(git config hooks.protected-branch.refs)
+
+for ref in $refs; do
+    if [ "$ref_name" == "refs/heads/$ref" ]; then
+        if [ "$old_value" == "0000000000000000000000000000000000000000" ]; then
+            continue
+        fi
+
+        if ! git merge-base --is-ancestor "$ref_name" "$new_value"; then
+            echo "$ref_name is protected branch"
+            exit 1
+        fi
+    fi
+done
